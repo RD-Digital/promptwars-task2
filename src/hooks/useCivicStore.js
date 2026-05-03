@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import { evaluateUserContext } from '../core/DecisionEngine';
 import { calculateReadinessScore } from '../core/ReadinessScore';
 import { trackEvent } from '../utils/analytics';
-import { saveMessage, getMessages, updateUserState } from '../services/firestore';
+import { saveMessage, updateUserState } from '../services/firestore';
+import { db } from '../services/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { APP_CONFIG } from '../core/config';
 
 /**
@@ -51,9 +53,18 @@ export const useCivicStore = create((set, get) => ({
     
     if (user) {
       try {
-        const storedMessages = await getMessages(user.uid);
-        if (storedMessages?.length > 0) {
-          set({ messages: storedMessages });
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const messages = data.messages || [];
+          const remoteContext = data.context || {};
+          
+          set({ 
+            messages: messages.length > 0 ? messages : initialState.messages,
+            context: { ...initialState.context, ...remoteContext },
+            flowState: remoteContext.stage || initialState.flowState,
+            readinessScore: remoteContext.readinessScore || initialState.readinessScore
+          });
         }
       } catch (error) {
         if (import.meta.env.DEV) console.error("Store Hydration Failed:", error);
