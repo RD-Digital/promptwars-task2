@@ -29,29 +29,7 @@ export const Home = () => {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', width: '100%', position: 'relative' }}>
-      <motion.button 
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => signOutUser()}
-        style={{
-          position: 'absolute',
-          top: '2rem',
-          right: '2rem',
-          background: 'rgba(240, 66, 81, 0.1)',
-          color: '#f04251',
-          border: '1px solid rgba(240, 66, 81, 0.3)',
-          padding: '0.5rem 1rem',
-          borderRadius: '12px',
-          fontSize: '0.8rem',
-          fontWeight: '600',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease'
-        }}
-        className="hover-lift"
-        aria-label="Sign out of your account"
-      >
-        Sign Out
-      </motion.button>
+
 
       <motion.div 
         initial={{ opacity: 0, y: -20 }} 

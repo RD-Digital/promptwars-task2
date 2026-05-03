@@ -5,7 +5,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signO
 
 /**
  * Firebase Production Configuration.
- * No fallbacks for API keys to maximize security evaluation score.
+ * No hardcoded secrets, strictly using environment variables.
  */
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,25 +20,29 @@ const firebaseConfig = {
 export let app, db, analytics, auth;
 const provider = new GoogleAuthProvider();
 
-try {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-  
-  if (typeof window !== "undefined" && firebaseConfig.measurementId) {
-    analytics = getAnalytics(app);
-  }
-} catch (error) {
-  if (import.meta.env.DEV) {
-    console.error("Firebase Init Error:", error);
+// Initialize Firebase only if API key is present
+if (firebaseConfig.apiKey) {
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    
+    if (typeof window !== "undefined" && firebaseConfig.measurementId) {
+      analytics = getAnalytics(app);
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) console.error("Firebase Init Error:", error);
   }
 }
 
 /**
  * Authenticates user via Google popup.
+ * Throws explicit error if Firebase is not configured.
  */
 export const signInWithGoogle = async () => {
-  if (!auth) return null;
+  if (!auth) {
+    throw new Error("Firebase Auth is not initialized. Please check your environment variables.");
+  }
   try {
     const result = await signInWithPopup(auth, provider);
     return result.user;
