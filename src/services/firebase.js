@@ -17,8 +17,7 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-export let app, db, analytics, auth;
-const provider = new GoogleAuthProvider();
+export let app, db, analytics, auth, provider;
 
 // Initialize Firebase only if API key is present
 if (firebaseConfig.apiKey) {
@@ -26,6 +25,7 @@ if (firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
+    provider = new GoogleAuthProvider();
     
     if (typeof window !== "undefined" && firebaseConfig.measurementId) {
       analytics = getAnalytics(app);
@@ -40,7 +40,7 @@ if (firebaseConfig.apiKey) {
  * Throws explicit error if Firebase is not configured.
  */
 export const signInWithGoogle = async () => {
-  if (!auth) {
+  if (!auth || !provider) {
     throw new Error("Firebase Auth is not initialized. Please check your environment variables.");
   }
   try {
