@@ -4,6 +4,9 @@ import { MapPin, Search } from 'lucide-react';
 import { useJsApiLoader, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { trackEvent } from '../../utils/analytics';
 
+import { APP_CONFIG } from '../../core/config';
+import { logger } from '../../utils/logger';
+
 const libraries = ['places'];
 const mapContainerStyle = {
   width: '100%',
@@ -13,6 +16,10 @@ const mapContainerStyle = {
 };
 const defaultCenter = { lat: 20.5937, lng: 78.9629 }; // India Center
 
+/**
+ * Interactive Polling Station Finder using Google Maps API.
+ * Allows users to search by pincode/city and visualize locations.
+ */
 export const PollingMap = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const isKeyValid = apiKey && apiKey !== 'dummy_maps_key';
@@ -25,7 +32,10 @@ export const PollingMap = () => {
 
   useEffect(() => {
     trackEvent('polling_viewed');
-  }, []);
+    if (loadError) {
+      logger.error("Google Maps Load Error", loadError);
+    }
+  }, [loadError]);
 
   const [map, setMap] = useState(null);
   const [stations, setStations] = useState([]);

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logger } from "../utils/logger";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "dummy_key";
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -55,9 +56,7 @@ Context: ${contextStr}`}]
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error("Gemini API error detailed:", error);
-    // Log status code if available
-    if (error.status) console.error("Error Status:", error.status);
+    logger.error("Gemini API failure", error);
     return `[Error] I'm currently unable to connect to the AI service. (${error.message || 'Check Console for details'})`;
   }
 };
@@ -107,7 +106,7 @@ ${source}`;
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error("Gemini API error detailed:", error);
+    logger.error("Knowledge Assistant failure", error);
     return `[Error] Knowledge Assistant connection failed. (${error.message || 'Check Console'})`;
   }
 };
