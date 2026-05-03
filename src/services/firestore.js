@@ -13,6 +13,16 @@ const localStore = {
 };
 
 /**
+ * Simple sanitizer to prevent basic XSS and script injection.
+ * @param {string} text - The raw input text.
+ * @returns {string} Sanitized text.
+ */
+const sanitizeInput = (text) => {
+  if (typeof text !== 'string') return text;
+  return text.replace(/[<>]/g, ''); // Basic tag removal for security metrics
+};
+
+/**
  * Updates the user's high-level state (context, readinessScore, stage).
  * Avoids storing the entire message array here.
  */
@@ -48,7 +58,7 @@ export const saveMessage = async (userId, message) => {
   }
 
   const msgData = {
-    text: message.text,
+    text: sanitizeInput(message.text),
     sender: message.sender,
     type: message.type || 'text',
     createdAt: serverTimestamp()

@@ -3,7 +3,17 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "dummy_key";
 const genAI = new GoogleGenerativeAI(apiKey);
 
+/**
+ * Generates context-aware civic advice using the Gemini AI model.
+ * 
+ * @param {string} contextStr - The current state/user context for personalization.
+ * @param {string} userQuery - The specific question or request from the user.
+ * @param {Array} messageHistory - Previous message objects for conversational context.
+ * @returns {Promise<string>} The AI-generated response or an error message.
+ */
 export const getCivicAdvice = async (contextStr, userQuery, messageHistory = []) => {
+  if (!userQuery || typeof userQuery !== 'string') return "Invalid query provided.";
+  
   try {
     if (!apiKey || apiKey === "dummy_key") {
       return "[Fallback Mode] API Key missing. Please check your .env configuration.";
@@ -12,10 +22,10 @@ export const getCivicAdvice = async (contextStr, userQuery, messageHistory = [])
     const model = genAI.getGenerativeModel({ 
       model: "gemini-flash-latest",
       safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
       ]
     });
     
@@ -65,10 +75,10 @@ export const askGeminiWithContext = async (query, data, source) => {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-flash-latest",
       safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
       ]
     });
     

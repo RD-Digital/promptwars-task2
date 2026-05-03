@@ -1,12 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { ChatBox } from '../components/Chat/ChatBox';
 import { ProgressBar } from '../components/UI/ProgressBar';
-import { PollingMap } from '../components/Maps/PollingMap';
 import LoginScreen from '../components/Auth/LoginScreen';
 import { useCivicStore } from '../hooks/useCivicStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { subscribeToAuth, signOutUser } from '../services/firebase';
 
+// Lazy load heavy components for better initial load efficiency
+const PollingMap = lazy(() => import('../components/Maps/PollingMap').then(module => ({ default: module.PollingMap })));
+
+/**
+ * Main Entry Point Page for CivicSense AI.
+ * Handles authentication state and feature routing.
+ */
 export const Home = () => {
   const { readinessScore, flowState, user, setUser } = useCivicStore();
 
@@ -23,7 +29,9 @@ export const Home = () => {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', width: '100%', position: 'relative' }}>
-      <button 
+      <motion.button 
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => signOutUser()}
         style={{
           position: 'absolute',
@@ -40,11 +48,16 @@ export const Home = () => {
           transition: 'all 0.3s ease'
         }}
         className="hover-lift"
+        aria-label="Sign out of your account"
       >
         Sign Out
-      </button>
+      </motion.button>
 
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '2rem', textAlign: 'center' }}>
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        style={{ marginBottom: '2rem', textAlign: 'center' }}
+      >
         <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>CivicSense AI</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Your Context-Aware Civic Decision Engine</p>
       </motion.div>
@@ -55,9 +68,11 @@ export const Home = () => {
 
       <AnimatePresence>
         {flowState === 'SHOW_POLLING' && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-            <PollingMap />
-          </motion.div>
+          <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading Polling Data...</div>}>
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+              <PollingMap />
+            </motion.div>
+          </Suspense>
         )}
       </AnimatePresence>
     </div>
