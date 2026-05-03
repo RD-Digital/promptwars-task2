@@ -4,26 +4,23 @@ import { useCivicStore } from '../../hooks/useCivicStore';
 import { ChatMessageList } from './ChatMessageList';
 import { ChatInput } from './ChatInput';
 import { ActionButtons } from '../QuickActions/ActionButtons';
-import { trackEvent } from '../../utils/analytics';
+import { logger } from '../../utils/logger';
 
 /**
  * Main Container for the Civic AI Chat interface.
  * Coordinates between the message list and input form.
  */
 export const ChatBox = () => {
-  const { messages, addMessage, context, isTyping, setTyping, flowState } = useCivicStore();
+  // Optimized Selectors for Efficiency
+  const messages = useCivicStore(state => state.messages);
+  const addMessage = useCivicStore(state => state.addMessage);
+  const context = useCivicStore(state => state.context);
+  const isTyping = useCivicStore(state => state.isTyping);
+  const setTyping = useCivicStore(state => state.setTyping);
+  const flowState = useCivicStore(state => state.flowState);
+
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
-
-  /**
-   * Internal logger that only prints in development mode.
-   * Improves code quality by avoiding console pollution in production.
-   */
-  const debugLog = useCallback((msg, data = {}) => {
-    if (import.meta.env.DEV) {
-      console.log(`[ChatBox Debug]: ${msg}`, data);
-    }
-  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,13 +32,14 @@ export const ChatBox = () => {
 
   /**
    * Handles the message sending process including Gemini routing.
+   * Prevents duplicate AI calls if already typing.
    */
   const handleSend = async (e) => {
     if (e) e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;
 
     const userText = input;
-    debugLog("User message captured", { userText });
+    logger.log("Processing message", { userText });
     
     addMessage(userText, 'user');
     setInput('');
@@ -69,10 +67,9 @@ export const ChatBox = () => {
       }
       
       addMessage(aiResponse, 'system');
-      trackEvent('ai_response_used', { query: userText });
     } catch (error) {
-      debugLog("Gemini Routing Error", error);
-      addMessage("I'm sorry, I'm having trouble connecting to my knowledge base. Please try again later.", 'system');
+      logger.error("Message Routing Error", error);
+      addMessage("I'm sorry, I'm having trouble connecting to my knowledge base.", 'system');
     } finally {
       setTyping(false);
     }

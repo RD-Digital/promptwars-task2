@@ -2,7 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Message } from './Message';
 import { StarterQuestions } from '../QuickActions/StarterQuestions';
-import PropTypes from 'prop-types';
 
 /**
  * Renders the scrollable list of chat messages and starter questions.
@@ -41,10 +40,4 @@ export const ChatMessageList = ({ messages, isTyping, messagesEndRef }) => {
       <div ref={messagesEndRef} />
     </div>
   );
-};
-
-ChatMessageList.propTypes = {
-  messages: PropTypes.array.isRequired,
-  isTyping: PropTypes.bool.isRequired,
-  messagesEndRef: PropTypes.object.isRequired
 };

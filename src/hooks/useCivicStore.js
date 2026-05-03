@@ -2,25 +2,25 @@ import { create } from 'zustand';
 import { evaluateUserContext } from '../core/DecisionEngine';
 import { calculateReadinessScore } from '../core/ReadinessScore';
 import { trackEvent } from '../utils/analytics';
-import { saveMessage, updateUserState } from '../services/firestore';
+import { saveMessage, debouncedUpdateState } from '../services/firestore';
 import { db } from '../services/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { APP_CONFIG } from '../core/config';
+import { ELECTION_DATE, DEFAULT_LOCALE, ANALYTICS_EVENTS, UI_STRINGS } from '../config/constants';
 
 /**
- * Type Definition for Civic State
+ * Initial Application State.
  */
 const initialState = {
   user: null,
-  sessionId: Math.random().toString(36).substring(2, 9),
+  sessionId: null,
   context: {
     age: null,
     isRegistered: null,
     location: null,
-    electionDate: APP_CONFIG.ELECTION_DATE,
+    electionDate: ELECTION_DATE,
     daysRemaining: null,
     firstTimeVoter: null,
-    preferredLanguage: APP_CONFIG.FALLBACK_LOCALE,
+    preferredLanguage: DEFAULT_LOCALE,
     hasCheckedPolling: false,
     hasValidID: false,
     hasStarted: false,
@@ -28,7 +28,7 @@ const initialState = {
   messages: [{
     id: 1,
     sender: 'system',
-    text: 'Welcome to CivicSense AI. I am your context-aware election assistant. How can I help you prepare for the upcoming election?',
+    text: UI_STRINGS.WELCOME_MESSAGE,
     type: 'welcome'
   }],
   flowState: 'START',
@@ -37,8 +37,8 @@ const initialState = {
 };
 
 /**
- * Centralized Store for CivicSense AI application state.
- * Uses Zustand for efficient reactive state management.
+ * Zustand Store for CivicSense AI.
+ * Implements high-efficiency state management with debounced persistence.
  */
 export const useCivicStore = create((set, get) => ({
   ...initialState,
@@ -47,11 +47,15 @@ export const useCivicStore = create((set, get) => ({
 
   /**
    * Sets the authenticated user and hydrates session data.
+   * @param {Object} user - Firebase Auth User object
    */
   setUser: async (user) => {
-    set({ user, sessionId: user ? user.uid : initialState.sessionId });
+    if (user?.uid === get().user?.uid) return;
+
+    set({ user, sessionId: user ? user.uid : null });
     
     if (user) {
+      trackEvent(ANALYTICS_EVENTS.SESSION_STARTED, { uid: user.uid });
       try {
         const docSnap = await getDoc(doc(db, "users", user.uid));
         if (docSnap.exists()) {
@@ -67,33 +71,36 @@ export const useCivicStore = create((set, get) => ({
           });
         }
       } catch (error) {
-        if (import.meta.env.DEV) console.error("Store Hydration Failed:", error);
+        if (import.meta.env.DEV) console.error("Store Hydration Error:", error);
       }
     }
   },
 
   /**
-   * Appends a new message to the thread and syncs with Firestore.
+   * Appends a new message with duplicate prevention.
+   * @param {string} text - Message text
+   * @param {string} sender - 'user' or 'system'
    */
   addMessage: async (text, sender = 'user', type = 'text') => {
-    const newMessage = { id: Date.now(), sender, text, type };
     const { messages, user } = get();
     
-    if (sender === 'user' && messages.length === 1) {
-      trackEvent('flow_started');
-    }
+    // Duplicate Prevention
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.text === text && lastMsg?.sender === sender) return;
 
+    const newMessage = { id: Date.now(), sender, text, type };
+    
     set({ messages: [...messages, newMessage] });
     
-    if (user) {
+    if (user?.uid) {
+      trackEvent(ANALYTICS_EVENTS.USER_ACTIVE, { timestamp: Date.now() });
       await saveMessage(user.uid, newMessage);
     }
-
-    trackEvent(sender === 'user' ? 'user_message_sent' : 'ai_responded');
   },
 
   /**
-   * Updates civic context and triggers the Decision Engine.
+   * Updates context and triggers decision logic with debounced persistence.
+   * @param {Object} updates - Context partial updates
    */
   updateContext: async (updates) => {
     const { context, user } = get();
@@ -108,33 +115,26 @@ export const useCivicStore = create((set, get) => ({
 
     set({ context: newContext, flowState: evaluation.state, readinessScore: score });
     
-    trackEvent('decision_engine_triggered', { state: evaluation.state });
-    trackEvent('readiness_score_generated', { score });
-    
-    if (user) {
-      await updateUserState(user.uid, {
+    if (user?.uid) {
+      debouncedUpdateState(user.uid, {
         context: newContext,
         stage: evaluation.state,
         readinessScore: score,
         lastAction: Object.keys(updates)[0] || 'none'
       });
+      trackEvent(ANALYTICS_EVENTS.READINESS_UPDATED, { score });
     }
 
     return evaluation;
   },
 
   /**
-   * Toggles the AI typing indicator.
+   * Toggles typing indicator.
    */
   setTyping: (status) => set({ isTyping: status }),
 
   /**
-   * Resets the store to initial state.
+   * Resets application state.
    */
   resetStore: () => set(initialState),
 }));
-
-// --- SELECTORS ---
-// (Optional helpers for performance optimization)
-export const selectIsAuth = (state) => !!state.user;
-export const selectReadiness = (state) => state.readinessScore;

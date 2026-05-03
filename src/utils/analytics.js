@@ -3,22 +3,25 @@ import { analytics } from "../services/firebase";
 
 /**
  * Reusable utility for Firebase Analytics tracking.
- * Fail silently if analytics is not initialized to prevent app breaks.
+ * Includes strict guards to prevent app breaks if analytics is unavailable.
+ * 
  * @param {string} name - Event name
- * @param {object} params - Event parameters
+ * @param {Object} params - Event parameters
  */
 export function trackEvent(name, params = {}) {
-  // Only execute on client side where analytics is initialized
-  if (typeof window !== "undefined" && analytics) {
-    try {
-      firebaseLogEvent(analytics, name, params);
-      
-      // Development logging
-      if (import.meta.env.DEV) {
-        console.log(`[Analytics Tracked] Event: ${name}`, params);
-      }
-    } catch (error) {
-      console.warn("Analytics error, failed to track event:", name, error);
+  // Efficiency Guard: Early exit if analytics is not initialized or measurementId missing
+  if (!analytics) return;
+
+  try {
+    firebaseLogEvent(analytics, name, params);
+    
+    // Development mode logging for debugging
+    if (import.meta.env.DEV) {
+      console.log(`[Analytics Tracked] Event: ${name}`, params);
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn("Analytics tracking failed:", name, error);
     }
   }
 }

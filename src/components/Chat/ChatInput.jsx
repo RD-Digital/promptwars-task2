@@ -1,6 +1,5 @@
 import React from 'react';
 import { Send } from 'lucide-react';
-import PropTypes from 'prop-types';
 
 /**
  * Chat input form with submit handler.
@@ -49,11 +48,4 @@ export const ChatInput = ({ value, onChange, onSubmit, disabled }) => {
       </button>
     </form>
   );
-};
-
-ChatInput.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  disabled: PropTypes.bool
 };
