@@ -19,8 +19,8 @@ const firebaseConfig = {
 
 export let app, db, analytics, auth, provider;
 
-// Initialize Firebase only if API key is present
-if (firebaseConfig.apiKey) {
+// Initialize Firebase only if API key is present and valid
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'undefined') {
   try {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);

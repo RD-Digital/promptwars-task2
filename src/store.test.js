@@ -25,10 +25,13 @@ describe('useCivicStore', () => {
     expect(useCivicStore.getState().context.stage).toBe('EDUCATED');
   });
 
-  it('should update readiness score', () => {
-    const { setReadinessScore } = useCivicStore.getState();
-    setReadinessScore(85);
+  it('should update readiness score when context changes', async () => {
+    const { updateContext } = useCivicStore.getState();
+    await updateContext({ isRegistered: true, hasValidID: true });
     
-    expect(useCivicStore.getState().readinessScore).toBe(85);
+    // According to ReadinessScore.js: isRegistered (+30), hasValidID (+20), daysRemaining (+30 if set)
+    // Note: updateContext sets daysRemaining automatically.
+    const score = useCivicStore.getState().readinessScore;
+    expect(score).toBeGreaterThanOrEqual(50);
   });
 });

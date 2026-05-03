@@ -9,6 +9,11 @@ export const ProgressBar = ({ score }) => {
       </div>
       <div 
         className="glass-panel"
+        role="progressbar"
+        aria-valuenow={score}
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-label="Voting readiness progress"
         style={{ 
           height: '12px', 
           width: '100%', 

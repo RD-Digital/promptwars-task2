@@ -28,7 +28,13 @@ export const StarterQuestions = () => {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}
+      role="group"
+      aria-label="Suggested starter questions"
+    >
       <button className="btn btn-secondary glass-pill" onClick={() => handleAction("What are my fundamental voting rights? 📜")}>
         What are my voting rights? 📜
       </button>

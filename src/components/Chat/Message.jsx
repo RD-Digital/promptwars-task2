@@ -10,11 +10,11 @@ export const Message = ({ message }) => {
   let mainText = message.text || '';
   let sourceUrl = null;
 
-  // Extract source URL if Gemini appended it
-  if (!isUser && mainText.includes('Source:\n')) {
-    const parts = mainText.split('Source:\n');
-    mainText = parts[0].trim();
-    sourceUrl = parts[1].trim();
+  // Extract source URL if Gemini appended it (robust pattern matching)
+  const sourceMatch = mainText.match(/Source:\s*(https?:\/\/[^\s]+)/i);
+  if (!isUser && sourceMatch) {
+    sourceUrl = sourceMatch[1];
+    mainText = mainText.replace(/Source:\s*https?:\/\/[^\s]+/i, '').trim();
   }
   
   return (
