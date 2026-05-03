@@ -1,0 +1,21 @@
+{
+  "faqs": [
+    {
+      "topic": "Voting Eligibility",
+      "answer": "To be eligible to vote in India, you must be a citizen of India, at least 18 years old on the qualifying date (usually January 1st of the election year), and ordinarily resident of the polling area. You must also be enrolled in the electoral roll of your constituency."
+    },
+    {
+      "topic": "Voter ID (EPIC)",
+      "answer": "While an EPIC (Voter ID) card is preferred, if your name is on the electoral roll, you can vote using other approved identity documents such as an Aadhaar Card, PAN Card, Driving License, Indian Passport, or MGNREGA Job Card."
+    },
+    {
+      "topic": "Election Results",
+      "answer": "Election results are declared by the Election Commission of India after all phases of polling are completed. The votes are counted simultaneously across all counting centers on a pre-announced date."
+    },
+    {
+      "topic": "How to Register",
+      "answer": "You can register to vote online through the Voter Service Portal (voters.eci.gov.in) by filling Form 6, or offline by submitting Form 6 to the Electoral Registration Officer (ERO) of your assembly constituency."
+    }
+  ],
+  "source": "https://voters.eci.gov.in/"
+}

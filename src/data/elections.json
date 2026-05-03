@@ -1,0 +1,29 @@
+{
+  "current_elections": [
+    {
+      "state": "Maharashtra",
+      "election_type": "Assembly",
+      "status": "Upcoming",
+      "expected_date": "Oct-Nov 2024"
+    },
+    {
+      "state": "Haryana",
+      "election_type": "Assembly",
+      "status": "Upcoming",
+      "expected_date": "Oct-Nov 2024"
+    },
+    {
+      "state": "Jharkhand",
+      "election_type": "Assembly",
+      "status": "Upcoming",
+      "expected_date": "Nov-Dec 2024"
+    },
+    {
+      "state": "Delhi",
+      "election_type": "Assembly",
+      "status": "Upcoming",
+      "expected_date": "Feb 2025"
+    }
+  ],
+  "source": "https://eci.gov.in/elections/current-elections/"
+}

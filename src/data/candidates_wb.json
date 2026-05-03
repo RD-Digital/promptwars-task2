@@ -1,0 +1,31 @@
+{
+  "state": "West Bengal",
+  "candidates": [
+    {
+      "name": "Mahua Moitra",
+      "party": "AITC",
+      "constituency": "Krishnanagar"
+    },
+    {
+      "name": "Abhishek Banerjee",
+      "party": "AITC",
+      "constituency": "Diamond Harbour"
+    },
+    {
+      "name": "Dilip Ghosh",
+      "party": "BJP",
+      "constituency": "Bardhaman-Durgapur"
+    },
+    {
+      "name": "Sukanta Majumdar",
+      "party": "BJP",
+      "constituency": "Balurghat"
+    },
+    {
+      "name": "Adhir Ranjan Chowdhury",
+      "party": "INC",
+      "constituency": "Baharampur"
+    }
+  ],
+  "source": "https://affidavit.eci.gov.in/"
+}
