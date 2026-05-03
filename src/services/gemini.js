@@ -32,7 +32,7 @@ export const getCivicAdvice = async (contextStr, userQuery, messageHistory = [])
   
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-3-flash-preview",
+      model: "gemini-3.1-flash-lite-preview",
       safetySettings: [
         { category: "HARM_CATEGORY_HARASSMENT", threshold: API_CONFIG.SAFETY_THRESHOLD },
         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: API_CONFIG.SAFETY_THRESHOLD },
@@ -81,7 +81,7 @@ export const askGeminiWithContext = async (query, data, source) => {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-3-flash-preview",
+      model: "gemini-3.1-flash-lite-preview",
       safetySettings: [
         { category: "HARM_CATEGORY_HARASSMENT", threshold: API_CONFIG.SAFETY_THRESHOLD },
         { category: "HARM_CATEGORY_HATE_SPEECH", threshold: API_CONFIG.SAFETY_THRESHOLD },
