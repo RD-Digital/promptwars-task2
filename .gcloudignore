@@ -1,0 +1,7 @@
+.git
+.gitignore
+node_modules
+dist
+# Ensure .env files ARE uploaded for the build process
+!.env.production
+!.env
